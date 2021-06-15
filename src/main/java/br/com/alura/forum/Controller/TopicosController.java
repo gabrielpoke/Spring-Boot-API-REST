@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/topicos")
@@ -51,23 +52,35 @@ public class TopicosController {
     }
 
     @GetMapping("/{id}")
-    public DetalhesdoTopicoDTO detalhar(@PathVariable Long id){
-        Topico topico = topicoRepository.getOne(id);
-        return new DetalhesdoTopicoDTO(topico);
+    public ResponseEntity<DetalhesdoTopicoDTO> detalhar(@PathVariable Long id){
+        Optional<Topico> topico = topicoRepository.findById(id);
+        if (topico.isPresent()){
+            return ResponseEntity.ok( new DetalhesdoTopicoDTO(topico.get()));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<TopicoDTO> atualizar(@PathVariable() Long id, @RequestBody @Valid AtualizacaoTopicoForm form){
-        Topico topico = form.atualizar(id, topicoRepository);
-        return ResponseEntity.ok(new TopicoDTO(topico));
+        Optional<Topico> topico = topicoRepository.findById(id);
+        if (topico.isPresent()){
+
+            Topico topicos = form.atualizar(id, topicoRepository);
+            return ResponseEntity.ok(new TopicoDTO(topicos));
+
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<?> remover(@PathVariable Long id){
-        topicoRepository.deleteById(id);
-        return ResponseEntity.ok().build();
-
+        Optional<Topico> topico = topicoRepository.findById(id);
+        if (topico.isPresent()) {
+            topicoRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
