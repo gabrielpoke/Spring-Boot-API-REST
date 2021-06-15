@@ -2,12 +2,14 @@ package br.com.alura.forum.Controller;
 
 import br.com.alura.forum.Controller.DTO.DetalhesdoTopicoDTO;
 import br.com.alura.forum.Controller.DTO.TopicoDTO;
+import br.com.alura.forum.Controller.Forms.AtualizacaoTopicoForm;
 import br.com.alura.forum.Controller.Forms.TopicoForm;
 import br.com.alura.forum.Models.Topico;
 import br.com.alura.forum.Repository.CursoRepository;
 import br.com.alura.forum.Repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -55,5 +57,13 @@ public class TopicosController {
 
         return new DetalhesdoTopicoDTO(topico);
 
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<TopicoDTO> atualizar(@PathVariable() Long id, @RequestBody @Valid AtualizacaoTopicoForm form){
+        Topico topico = form.atualizar(id, topicoRepository);
+
+        return ResponseEntity.ok(new TopicoDTO(topico));
     }
 }
